@@ -1,0 +1,407 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 4d653e2..2f7b0d8 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -12,7 +12,7 @@ set(localLibs
+ 
+ # List of external libraries
+ set(externLibs
+-    z
++    
+ )
+ 
+ 
+@@ -30,8 +30,6 @@ FOREACH(localLib ${localLibs})
+     endif()
+ ENDFOREACH(localLib)
+ 
+-find_package(ZLIB)
+-include_directories(${ZLIB_INCLUDE_DIR})
+ 
+ add_executable(${projectName} main.cpp)
+ 
+diff --git a/lib/EvalMaxSAT/src/CadicalEvalMaxSAT.cpp b/lib/EvalMaxSAT/src/CadicalEvalMaxSAT.cpp
+new file mode 100644
+index 0000000..8cfea60
+--- /dev/null
++++ b/lib/EvalMaxSAT/src/CadicalEvalMaxSAT.cpp
+@@ -0,0 +1,119 @@
++#include "CadicalEvalMaxSAT.hpp"
++#include "cadicalinterface.h"
++#include "EvalMaxSAT.h"
++namespace Eval
++{
++  CadicalEvalMaxSAT::CadicalEvalMaxSAT()
++  {
++    monMaxSat = new EvalMaxSAT<Solver_cadical>();
++  }
++  CadicalEvalMaxSAT::~CadicalEvalMaxSAT()
++  {
++    EvalMaxSAT<Solver_cadical> *monMaxSat = (EvalMaxSAT<Solver_cadical> *)this->monMaxSat;
++    delete monMaxSat;
++    this->monMaxSat = nullptr;
++  }
++  void CadicalEvalMaxSAT::setCoef(double initialCoef, double coefOnRefTime)
++  {
++    EvalMaxSAT<Solver_cadical> *monMaxSat = (EvalMaxSAT<Solver_cadical> *)this->monMaxSat;
++    monMaxSat->setCoef(initialCoef, coefOnRefTime);
++  }
++
++  void CadicalEvalMaxSAT::setTargetComputationTime(double targetComputationTime)
++  {
++    EvalMaxSAT<Solver_cadical> *monMaxSat = (EvalMaxSAT<Solver_cadical> *)this->monMaxSat;
++    monMaxSat->setTargetComputationTime(targetComputationTime);
++  }
++
++  void CadicalEvalMaxSAT::setBoundRefTime(double minimalRefTime, double maximalRefTime)
++  {
++    EvalMaxSAT<Solver_cadical> *monMaxSat = (EvalMaxSAT<Solver_cadical> *)this->monMaxSat;
++    monMaxSat->setBoundRefTime(minimalRefTime, maximalRefTime);
++  }
++
++  void CadicalEvalMaxSAT::unactivateDelayStrategy()
++  {
++    EvalMaxSAT<Solver_cadical> *monMaxSat = (EvalMaxSAT<Solver_cadical> *)this->monMaxSat;
++    monMaxSat->unactivateDelayStrategy();
++  }
++
++  void CadicalEvalMaxSAT::unactivateMultiSolveStrategy()
++  {
++    EvalMaxSAT<Solver_cadical> *monMaxSat = (EvalMaxSAT<Solver_cadical> *)this->monMaxSat;
++    monMaxSat->unactivateMultiSolveStrategy();
++  }
++
++  void CadicalEvalMaxSAT::unactivateUBStrategy()
++  {
++    EvalMaxSAT<Solver_cadical> *monMaxSat = (EvalMaxSAT<Solver_cadical> *)this->monMaxSat;
++    monMaxSat->unactivateUBStrategy();
++  }
++
++  bool CadicalEvalMaxSAT::isWeighted()
++  {
++    EvalMaxSAT<Solver_cadical> *monMaxSat = (EvalMaxSAT<Solver_cadical> *)this->monMaxSat;
++    return monMaxSat->isWeighted();
++  }
++
++  int CadicalEvalMaxSAT::newVar(bool decisionVar)
++  {
++    EvalMaxSAT<Solver_cadical> *monMaxSat = (EvalMaxSAT<Solver_cadical> *)this->monMaxSat;
++    return monMaxSat->newVar(decisionVar);
++  }
++
++  int CadicalEvalMaxSAT::newSoftVar(bool value, long long weight)
++  {
++    EvalMaxSAT<Solver_cadical> *monMaxSat = (EvalMaxSAT<Solver_cadical> *)this->monMaxSat;
++    return monMaxSat->newSoftVar(value, weight);
++  }
++  unsigned int CadicalEvalMaxSAT::nVars()
++  {
++    EvalMaxSAT<Solver_cadical> *monMaxSat = (EvalMaxSAT<Solver_cadical> *)this->monMaxSat;
++    return monMaxSat->nVars();
++  }
++
++  int CadicalEvalMaxSAT::addClause(const int ps[], size_t length, long w)
++  {
++    EvalMaxSAT<Solver_cadical> *monMaxSat = (EvalMaxSAT<Solver_cadical> *)this->monMaxSat;
++    std::vector<int> clause;
++    for (size_t i = 0; i < length; i++)
++    {
++      int lit = ps[i];
++      while (abs(lit) > monMaxSat->nVars())
++        monMaxSat->newVar();
++      clause.push_back(lit);
++    }
++    std::optional<long long> ww = {};
++    if (w > 0)
++    {
++      ww = w;
++    }
++
++    return monMaxSat->addClause(clause, ww);
++  }
++
++  bool CadicalEvalMaxSAT::getValue(int lit)
++  {
++    EvalMaxSAT<Solver_cadical> *monMaxSat = (EvalMaxSAT<Solver_cadical> *)this->monMaxSat;
++    return monMaxSat->getValue(lit);
++  }
++
++  bool CadicalEvalMaxSAT::solve()
++  {
++    EvalMaxSAT<Solver_cadical> *monMaxSat = (EvalMaxSAT<Solver_cadical> *)this->monMaxSat;
++    return monMaxSat->solve();
++  }
++
++  void CadicalEvalMaxSAT::addWeight(int lit, long long weight)
++  {
++    EvalMaxSAT<Solver_cadical> *monMaxSat = (EvalMaxSAT<Solver_cadical> *)this->monMaxSat;
++    monMaxSat->addWeight(lit, weight);
++  }
++
++  void CadicalEvalMaxSAT::setNInputVars(unsigned int nInputVars)
++  {
++    EvalMaxSAT<Solver_cadical> *monMaxSat = (EvalMaxSAT<Solver_cadical> *)this->monMaxSat;
++    monMaxSat->setNInputVars(nInputVars);
++  }
++
++};
+diff --git a/lib/EvalMaxSAT/src/CadicalEvalMaxSAT.hpp b/lib/EvalMaxSAT/src/CadicalEvalMaxSAT.hpp
+new file mode 100644
+index 0000000..a3a8b26
+--- /dev/null
++++ b/lib/EvalMaxSAT/src/CadicalEvalMaxSAT.hpp
+@@ -0,0 +1,43 @@
++#ifndef CadicalEvalMaxSAT_H_
++#define CadicalEvalMaxSAT_H_
++#include <cstdint>
++#include <cstdio>
++#include <optional>
++#include <vector>
++
++namespace Eval
++{
++  class CadicalEvalMaxSAT
++  {
++  private:
++    void *monMaxSat;
++
++  public:
++    CadicalEvalMaxSAT();
++    ~CadicalEvalMaxSAT();
++
++    void setCoef(double initialCoef, double coefOnRefTime);
++    void setTargetComputationTime(double targetComputationTime);
++    void setBoundRefTime(double minimalRefTime, double maximalRefTime);
++    void unactivateDelayStrategy();
++    void unactivateMultiSolveStrategy();
++    void unactivateUBStrategy();
++
++    bool isWeighted();
++
++    unsigned int nVars();
++
++    int newVar(bool decisionVar = true);
++
++    int newSoftVar(bool value, long long weight);
++
++    int addClause(const int ps[], size_t length, long w = 0);
++
++    bool getValue(int lit);
++    bool solve();
++
++    void addWeight(int lit, long long weight);
++    void setNInputVars(unsigned int nInputVars);
++  };
++};
++#endif
+\ No newline at end of file
+diff --git a/lib/EvalMaxSAT/src/EvalMaxSAT.h b/lib/EvalMaxSAT/src/EvalMaxSAT.h
+index 5fa1492..efa2a48 100644
+--- a/lib/EvalMaxSAT/src/EvalMaxSAT.h
++++ b/lib/EvalMaxSAT/src/EvalMaxSAT.h
+@@ -2,7 +2,6 @@
+ #define EVALMAXSAT_SLK178903R_H
+ 
+ 
+-#include <iostream>
+ #include <vector>
+ #include <algorithm>
+ #include <random>
+@@ -217,13 +216,6 @@ public:
+         delete solver;
+     }
+ public:
+-    void printInfo() {
+-        std::cout << "c PARAMETRE INFORMATION: " << std::endl;
+-        std::cout << "c Stop unsat improving after " << totalSolveTimeout.getVal() << " sec" << std::endl;
+-        std::cout << "c Minimal ref time = " << _minimalRefTime << " sec" << std::endl;
+-        std::cout << "c Initial coef = " << _initialCoef << std::endl;
+-        std::cout << "c Average coef = " << _averageCoef << std::endl;
+-    }
+ 
+ 
+     bool isWeighted() {
+diff --git a/lib/EvalMaxSAT/src/ParseUtils.h b/lib/EvalMaxSAT/src/ParseUtils.h
+index a39b0da..824575d 100644
+--- a/lib/EvalMaxSAT/src/ParseUtils.h
++++ b/lib/EvalMaxSAT/src/ParseUtils.h
+@@ -1,12 +1,9 @@
+-#include <zlib.h>
+-#include <iostream>
+ #include <cmath>
+ #include <cassert>
+ 
+ static const int buffer_size = 1048576;
+ 
+ class StreamBuffer {
+-   gzFile        in;
+    unsigned char buf[buffer_size];
+    int           pos;
+    int           size;
+@@ -14,10 +11,10 @@ class StreamBuffer {
+    void assureLookahead() {
+        if (pos >= size) {
+            pos  = 0;
+-           size = gzread(in, buf, sizeof(buf)); } }
++           size =0; } }
+ 
+ public:
+-   explicit StreamBuffer(gzFile i) : in(i), pos(0), size(0) { assureLookahead(); }
++   explicit StreamBuffer() :  pos(0), size(0) { assureLookahead(); }
+ 
+    int  operator *  () const { return (pos >= size) ? EOF : buf[pos]; }
+    void operator ++ ()       { pos++; assureLookahead(); }
+diff --git a/lib/EvalMaxSAT/src/utile.h b/lib/EvalMaxSAT/src/utile.h
+index b4639ff..7bee4c2 100644
+--- a/lib/EvalMaxSAT/src/utile.h
++++ b/lib/EvalMaxSAT/src/utile.h
+@@ -5,7 +5,6 @@
+ #include <cmath>
+ #include <cassert>
+ #include <tuple>
+-#include <zlib.h>
+ 
+ #include "ParseUtils.h"
+ 
+@@ -139,77 +138,7 @@ static void readClause(B& in, std::vector<int>& lits) {
+ /// POUR DEBUG ////
+ t_weight calculateCost(const std::string & file, std::vector<bool> &result) {
+     t_weight cost = 0;
+-    auto in_ = gzopen(file.c_str(), "rb");
+-    t_weight weightForHardClause = -1;
+-
+-    StreamBuffer in(in_);
+-
+-    std::vector<int> lits;
+-    for(;;) {
+-        skipWhitespace(in);
+-
+-        if(*in == EOF)
+-            break;
+-
+-        else if(*in == 'c') {
+-            skipLine(in);
+-        } else if(*in == 'p') { // Old format
+-          ++in;
+-          if(*in != ' ') {
+-              std::cerr << "c PARSE ERROR! Unexpected char: " << static_cast<char>(*in) << std::endl;
+-              return false;
+-          }
+-          skipWhitespace(in);
+-
+-          if(eagerMatch(in, "wcnf")) {
+-              parseInt(in); // # Var
+-              parseInt(in); // # Clauses
+-              weightForHardClause = parseWeight(in);
+-          } else {
+-              std::cerr << "c PARSE ERROR! Unexpected char: " << static_cast<char>(*in) << std::endl;
+-              return false;
+-          }
+-      }
+-        else {
+-            t_weight weight = parseWeight(in);
+-            readClause(in, lits);
+-            if(weight >= weightForHardClause) {
+-                bool sat=false;
+-                for(auto l: lits) {
+-                    if(abs(l) >= result.size()) {
+-                        result.resize(abs(l)+1, 0);
+-                        assert(!"Error size result");
+-                    }
+-                    if ( (l>0) == (result[abs(l)]) ) {
+-                        sat = true;
+-                        break;
+-                    }
+-                }
+-                if(!sat) {
+-                    //std::cerr << "Error : solution no SAT !" << std::endl;
+-                    return -1;
+-                }
+-            } else {
+-                bool sat=false;
+-                for(auto l: lits) {
+-                    if(abs(l) >= result.size()) {
+-                        result.resize(abs(l)+1, 0);
+-                        assert(!"Error size result");
+-                    }
+-
+-                    if ( (l>0) == (result[abs(l)]) ) {
+-                        sat = true;
+-                        break;
+-                    }
+-                }
+-                if(!sat) {
+-                    cost += weight;
+-                }
+-            }
+-        }
+-    }
+-
+-    gzclose(in_);
++   
+     return cost;
+ }
+ 
+@@ -234,62 +163,6 @@ std::vector<int> readClause(StreamBuffer &in, MAXSAT_SOLVER* solveur) {
+ 
+ template<class MAXSAT_SOLVER>
+ bool parse(const std::string& filePath, MAXSAT_SOLVER* solveur) {
+-    savePourTest_file = filePath;
+-    auto gz = gzopen( filePath.c_str(), "rb");
+-
+-    StreamBuffer in(gz);
+-    t_weight weightForHardClause = -1;
+-
+-    if(*in == EOF) {
+-        return false;
+-    }
+-
+-    std::vector < std::tuple < std::vector<int>, t_weight> > softClauses;
+-
+-    for(;;) {
+-        skipWhitespace(in);
+-
+-        if(*in == EOF) {
+-            break;
+-        }
+-
+-        if(*in == 'c') {
+-            skipLine(in);
+-        } else if(*in == 'p') { // Old format
+-            ++in;
+-            if(*in != ' ') {
+-                std::cerr << "c PARSE ERROR! Unexpected char: " << static_cast<char>(*in) << std::endl;
+-                return false;
+-            }
+-            skipWhitespace(in);
+-
+-            if(eagerMatch(in, "wcnf")) {
+-                parseInt(in); // # Var
+-                parseInt(in); // # Clauses
+-                weightForHardClause = parseWeight(in);
+-            } else {
+-                std::cerr << "c PARSE ERROR! Unexpected char: " << static_cast<char>(*in) << std::endl;
+-                return false;
+-            }
+-        } else {
+-            t_weight weight = parseWeight(in);
+-            std::vector<int> clause = readClause(in, solveur);
+-
+-            if(weight >= weightForHardClause) {
+-                solveur->addClause(clause);
+-            } else {
+-                // If it is a soft clause, we have to save it to add it once we are sure we know the total number of variables.
+-                softClauses.push_back({clause, weight});
+-            }
+-        }
+-    }
+-
+-    solveur->setNInputVars(solveur->nVars());
+-    for(auto & [clause, weight]: softClauses) {
+-        solveur->addClause(clause, weight);
+-    }
+-
+-    gzclose(gz);
+     return true;
+  }
+ 
