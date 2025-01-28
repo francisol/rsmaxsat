@@ -1,24 +1,24 @@
-pub mod slover;
+pub mod solver;
 
 
 #[cfg(test)]
 mod tests {
-    use crate::slover::MaxSATSolver;
+    use crate::solver::MaxSATSolver;
 
     use super::*;
 
     #[test]
     fn evalmaxsat() {
-        let mut solver = slover::evalmaxsat::CadicalEvalMaxSATSolver::new();
+        let mut solver = solver::evalmaxsat::CadicalEvalMaxSATSolver::new();
         solver.add_clause(&vec![1, -2], None);
         solver.add_clause(&vec![-1, 2], None);
         solver.add_clause(&vec![2], Some(1));
         match solver.solve() {
-            slover::Status::SATISFIABLE => {
-                assert_eq!(vec![true, true, true], solver.bool_model());
+            solver::Status::SATISFIABLE => {
+                assert_eq!(true, solver.value(2));
             }
-            slover::Status::UNSATISFIABLE => assert_eq!(1, 0),
-            slover::Status::UNKNOWN => assert_eq!(10, 0),
+            solver::Status::UNSATISFIABLE => assert_eq!(1, 0),
+            solver::Status::UNKNOWN => assert_eq!(10, 0),
         }
     }
 }

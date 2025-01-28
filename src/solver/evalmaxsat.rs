@@ -50,4 +50,10 @@ impl MaxSATSolver for  CadicalEvalMaxSATSolver{
     }
         model
     }
+    
+    fn value(& mut self,lit: i32)->bool {
+        unsafe {
+        return  self.inner.getValue(lit);
+        }
+    }
 }
